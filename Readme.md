@@ -1,10 +1,10 @@
-       _ ______ ________      ________  _____ 
-      | |  ____|  ____\ \    / /  ____|/ ____|
-      | | |__  | |__   \ \  / /| |__  | (___  
-  _   | |  __| |  __|   \ \/ / |  __|  \___ \ 
- | |__| | |____| |____   \  /  | |____ ____) |
-  \____/|______|______|   \/   |______|_____/ 
-                                              
+		       _ ______ ________      ________  _____ 
+		      | |  ____|  ____\ \    / /  ____|/ ____|
+		      | | |__  | |__   \ \  / /| |__  | (___  
+		  _   | |  __| |  __|   \ \/ / |  __|  \___ \ 
+		 | |__| | |____| |____   \  /  | |____ ____) |
+		  \____/|______|______|   \/   |______|_____/ 
+		                                              
 ________________________________________________________________________________________________
 ________________________________________________________________________________________________
 
@@ -40,41 +40,41 @@ ________________________________________________________________________________
 
 DASHBOARD:
 ----------
-	* Dans un premier temps construire les different systeme docker 
+* Dans un premier temps construire les different systeme docker 
 
 
 
 un docker pour la party database :
 ----------------------------------
-	* Pour la Database , J'ai pu faire les des Script Back end pour recupéré les diferents Ticker Du marcher
-	
-	* Nous avont donc plusieur code :
-	-------------------------------
-		un code en script pure 
-		un code en Programmation OOP
+* Pour la Database , J'ai pu faire les des Script Back end pour recupéré les diferents Ticker Du marcher
+
+* Nous avont donc plusieur code :
+-------------------------------
+	un code en script pure 
+	un code en Programmation OOP
 
 
 un docker pour la parti Flask ( api, site):
 -------------------------------------------
 	
-	Creation dossier app:
-	---------------------
-		APP:
-		----
-			Flask Server en Mode Webhook :
-			------------------------------
-				Reçois les Données de TradingView sous la Form d'un Json:
-				---------------------------------------------------------
-					Nous pouvons recevoire toute les alerte pour le moment , il faudrait que l'on puisse coupler le AADI et LE ML pour avoir nos bons point d'entrée
+Creation dossier app:
+=====================
+APP:
+----
+	Flask Server en Mode Webhook :
+	------------------------------
+		Reçois les Données de TradingView sous la Form d'un Json:
+		---------------------------------------------------------
+			Nous pouvons recevoire toute les alerte pour le moment , il faudrait que l'on puisse coupler le AADI et LE ML pour avoir nos bons point d'entrée
 
 
-		Template:
-		---------
-			contien les views | page html|
-				* base.html:
-				------------
-					page de Model pour la construction des autre page 				|| FAIT 
-					Page index model avec Lorem Ipsum pour un model D'arrivage		|| FAIT 
+	Template:
+	---------
+		contien les views | page html|
+			* base.html:
+			------------
+				page de Model pour la construction des autre page 				|| FAIT 
+				Page index model avec Lorem Ipsum pour un model D'arrivage		|| FAIT 
 
 
 
