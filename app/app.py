@@ -12,6 +12,7 @@ from art import *
 import MetaTrader5 as mt5
 
 import pandas as pd
+import uvicorn
 
 from rich import print
 from rich.panel import Panel
