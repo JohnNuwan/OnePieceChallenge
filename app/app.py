@@ -24,12 +24,6 @@ from config import *
 codeur = "K.Azazel"
 console = Console(width=20)
 
-# Telegram
-TOKEN = "1801058128:AAETqJbJMjVUt6ewpjYL2ZVIU8wzIlrzJL4"
-CHAT_ID = "@GOLD_SIGNAL_TESTE"
-
-
-# DISCORD_WEBHOOK_URL = "https://discordapp.com/api/webhooks/910084409506537482/gDo7iinNt7DCcE8c9JNvJTmKQLQyeQNwBk4W-eHqzfpQl462ZCOKfkHyfknbXpWQBTSD"
 
 
 def message(msg):
@@ -53,7 +47,7 @@ Art=text2art("Jeeves",chr_ignore=True)
 os.system('cls')
 
 def banner(Art):
-
+	""" Simple Decoration d'en-tête """
 
 	print(Text("_"*60, justify="left" ,style="color(9) blink"))
 	print(Text(Art, justify="left" ,style="color(2) blink " ))
@@ -66,13 +60,38 @@ def banner(Art):
 
 @app.route('/')
 def index():
+	""" Route Page Index """
 	# port_ext = os.system(f"ngrok.exe http {port}")
 
 	return render_template('index.html')
 
+@app.route('/register')
+def register():
+	""" Route Page resiter """
+	# port_ext = os.system(f"ngrok.exe http {port}")
+
+	return render_template('register.html')
+
+@app.route('/login')
+def login():
+	""" Route Page Login """
+	# port_ext = os.system(f"ngrok.exe http {port}")
+
+	return render_template('login.html')
+
+@app.route('/price')
+def price():
+	""" Route Page Dashboard """
+	return render_template('price.html')
+
+@app.route('/dashbord')
+def dashbord():
+	""" Route Page Dashboard """
+	return render_template('dashboard.html')
 
 @app.route('/webhook',  methods=['POST'])
 def webhook():
+	""" Route Pour la Comunication TradingView Discord """
 	lot = None
 	deviation = 20
 	comment = None
@@ -83,7 +102,7 @@ def webhook():
 	ticker = df.ticker[0]
 	Action = df['strategy'].iloc[0]
 	
-	if ticker == "GOLD" or ticker == "xauusd":
+	if ticker == "GOLD" or ticker == "XAUUSD":
 		symbol = "XAUUSD"
 		lot = 0.16
 		comment = "Python AADI M15"

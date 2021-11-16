@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-  <head>
+
     {% block head %}
 
     <meta charset="utf-8">
@@ -18,18 +18,23 @@
 
     <!-- Custom styles for this template -->
     <link href="{{ url_for('static', filename='cover.css') }}" rel="stylesheet">
+
     {% endblock %}
-  </head>
+
 
   <body class="text-center">
 
     <div class="cover-container d-flex h-100 p-3 mx-auto flex-column">
       <header class="masthead mb-auto">
         <div class="inner">
-          <h3 class="masthead-brand">Jeeves</h3>
+          <!-- h3 class="masthead-brand">Jeeves</h3> -->
           {% block header %}{% endblock %}
           <nav class="nav nav-masthead justify-content-center">
             <a class="nav-link active" href="{{url_for('index')}}">Home</a>
+            <a class="nav-link active" href="{{url_for('price')}}">Price</a>
+            <a class="nav-link active" href="{{url_for('register')}}">Register</a>
+            <a class="nav-link active" href="{{url_for('login')}}">Login</a>
+            <a class="nav-link active" href="{{url_for('dashbord')}}">Dashboard</a>
        <!--      <a class="nav-link" href="#">Features</a>
             <a class="nav-link" href="#">Contact</a> -->
           </nav>

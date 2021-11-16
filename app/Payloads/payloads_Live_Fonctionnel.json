@@ -1,0 +1,11 @@
+{
+	"passphrase": "somelongstring123",
+	"time": "2020-09-05T19:47:00Z",
+	"ticker": "GOLD",
+
+	"strategy": {
+		
+		"order_action": "buy",
+		"order_id": "Close entry(s) order long"
+	}
+}
