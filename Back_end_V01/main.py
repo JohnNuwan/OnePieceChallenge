@@ -15,6 +15,9 @@ import MetaTrader5 as mt5
 import pandas as pd
 import uvicorn
 
+port = 8091
+host = "0.0.0.0"
+
 os.system("cls")
 app = FastAPI()
 
@@ -28,6 +31,7 @@ async def usr():
 	""" Route de Test """
 	return {"message": "user"}
 
+# Route Recuperation Info Compte Courant
 @app.get("/account_info")
 async def account_info():
 	""" Route de Recup Info Terminal """
@@ -55,9 +59,9 @@ async def account_info():
 	mt5.shutdown()
 	return {'message':data.values}
 
-
-@app.get("/ticker/{ticker_id}")
-async def read_item(ticker_id):
+# Route Recuperation Live Tick
+@app.get("/ticker_live/{ticker_id}")
+async def read_live(ticker_id):
 	import numpy as np
 	from datetime import datetime
 	# establish connection to the MetaTrader 5 terminal
@@ -80,12 +84,22 @@ async def read_item(ticker_id):
 	print(data_3)
 	print("-"*120)
 	# sys.exit()
-	data = data_3#.to_json()
+	data = data_3
 	return {"ticker_id": data}
 
-@app.get("/items/{item_id }")
+
+
+
+# Route Recuperation hist Data
+@app.get("/hist_ticker/{ticker}/{timeframe}")
+async def read_hist(ticker_id,timeframe ):
+	print(ticker_id,timeframe)
+	return {"ticker_id": [ticker_id.values,timeframe.values]}
+
+
+@app.get("/items/{item_id}")
 async def read_item(item_id ):
-	return {"ticker_id": ticker_id}
+	return {"items_id": item_id}
 
 if __name__ == '__main__':
-	uvicorn.run("main:app")
+	uvicorn.run("main:app",port=port, host=host, debug=True)
