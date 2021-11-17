@@ -15,24 +15,36 @@ url = f"http://{host}:{port}"
 print("url")
 ticker = "XAUUSD"
 
+db = []
 count = 0  
-while count < 10:
-	r = requests.get(url)
-	print("-"*30)
-	print(r)
-	r = requests.get(url+"/usr")
-	print("-"*30)
-	print(r.text)
-	print()
-	r = requests.get(url+f"/ticker_live/{ticker}")
+
+r = requests.get(url)
+print("-"*30)
+print(r)
+
+r = requests.get(url+f"/ticker_live/{ticker}")
+data = json.loads(r.text)
+print(type(data))
+
+r = requests.get(url+f"/symbol_info/{ticker}")
+data = json.loads(r.text)
+print(type(data))
+
+r = requests.get(url+f"/all_symbol")
+data = json.loads(r.text)
+print(type(data))
+df = pd.DataFrame(data)
+for i in df['Name']:
+	r = requests.get(url+f"/ticker_live/{i}")
+	print(r.status_code)
 	data = json.loads(r.text)
-	print("Data Mode Json :")
 	print(data)
-	print("-"*30)
-	print("Data Mode DataFrame : ")
-	df = pd.DataFrame(data)
-	print(pd.Series(df.T['time']).iloc[0])
-	print(df)
-	print()
-	count+=1
-	time.sleep(0.5)
+	db.append(data)
+
+
+count+=1
+print("\n\n LECTURE STOCKAGE DB RAM TEMPO 5s : \n\t")
+time.sleep(5)
+print(db)
+
+# print(pd.DataFrame(data))

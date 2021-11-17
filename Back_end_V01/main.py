@@ -14,13 +14,15 @@ from fastapi import FastAPI
 import MetaTrader5 as mt5
 import pandas as pd
 import uvicorn
-
+import json
 port = 8091
 host = "0.0.0.0"
 
 os.system("cls")
 app = FastAPI()
 
+db = []
+live_tick = []
 @app.get("/")
 async def root():
 	""" Route de Test """
@@ -38,26 +40,23 @@ async def account_info():
 	mt5.initialize()
 	account_info=mt5.account_info()
 	if account_info!=None:
-		# display trading account data 'as is'
-		print(account_info)
-		# display trading account data in the form of a dictionary
-		print("Show account_info()._asdict():")
+
 		account_info_dict = mt5.account_info()._asdict()
-		for prop in account_info_dict:
-			print("  {}={}".format(prop, account_info_dict[prop]))
-		print()
+
  
 		# convert the dictionary into DataFrame and print
 		df=pd.DataFrame(list(account_info_dict.items()),columns=['property','value'])
-		print("account_info() as dataframe:")
-		print(df.head())
+		# print("account_info() as dataframe:")
+		# print(df.head())
 		data = df#.to_json()
+		db.append({'account_info':data.values})
+		print(db)
 	else:
 		print("failed to connect to trade account 25115284 with password=gqz0343lbdm, error code =",mt5.last_error())
 	 
 	# shut down connection to the MetaTrader 5 terminal
 	mt5.shutdown()
-	return {'message':data.values}
+	return {'account_info':data.values}
 
 # Route Recuperation Live Tick
 @app.get("/ticker_live/{ticker_id}")
@@ -80,12 +79,13 @@ async def read_live(ticker_id):
 	data_3['med'] = (np.array(data_3['ask'])+np.array(data_3['bid']))/2
 	data_3["time"] = time_now
 	data_3.drop(columns=['flags','last','time_msc','volume','volume_real'],inplace=True)
-	print("-"*120)
-	print(data_3)
-	print("-"*120)
+	# print("-"*120)
+	# print(data_3.T)
+	# print("-"*120)
 	# sys.exit()
-	data = data_3
-	return {"ticker_id": data}
+	data = data_3.T
+	db.append(data)
+	return {"ticker_id": [data]}
 
 
 
@@ -95,6 +95,51 @@ async def read_live(ticker_id):
 async def read_hist(ticker_id,timeframe ):
 	print(ticker_id,timeframe)
 	return {"ticker_id": [ticker_id.values,timeframe.values]}
+
+@app.get("/listtick")
+async def read_item():
+	data = pd.DataFrame(db)
+	return data
+
+
+@app.get("/symbol_info/{item_id}")
+async def read_item(item_id ):
+	"""  Recuperation Des infos Data  """
+	# establish connection to the MetaTrader 5 terminal
+	if not mt5.initialize():
+		print("initialize() failed, error code =",mt5.last_error())
+		quit()
+	# display symbol properties
+	symbol_info=mt5.symbol_info(item_id)
+	if symbol_info!=None:
+		symbol_info_dict = mt5.symbol_info(item_id)._asdict()
+	# shut down connection to the MetaTrader 5 terminal
+	mt5.shutdown()
+	data = pd.Series(symbol_info_dict)
+
+	return {"items_id": data}
+
+
+
+@app.get("/all_symbol")
+async def get_all_symbol():
+		
+		# establish connection to the MetaTrader 5 terminal
+		if not mt5.initialize():
+			print("initialize() failed, error code =",mt5.last_error())
+			quit()
+		 
+		# get all symbols
+		symbols=mt5.symbols_get()
+		# print('Symbols: ', len(symbols))
+		# all_symbol = pd.DataFrame()
+		name = []
+		for s in symbols:
+			name.append(s.name)
+
+		data = pd.DataFrame(name,columns=["Name"])
+		# data = data.to_json()
+		return data
 
 
 @app.get("/items/{item_id}")

@@ -22,36 +22,6 @@ Date     : 16/11/2021 |
 ________________________________________________________________________________________________
 ________________________________________________________________________________________________
 
-## Fichier client:
-
-Simple fichier de teste pour voir et testé les connection au Fastapi
-petit stockage memoire interne 
-
-prochain essai est de coupler les le module pydantic pour interagire avec les database 
-
-#### le code sera de forme 
-	
-	from typing import Optional
-
-	from fastapi import FastAPI
-	from pydantic import BaseModel
-
-
-	class Item(BaseModel):
-	    name: str
-	    description: Optional[str] = None
-	    price: float
-	    tax: Optional[float] = None
-
-
-	app = FastAPI()
-
-
-@app.post("/items/")
-async def create_item(item: Item):
-    return item
-
-
 # Save Data
 Dans un premier Temps Recuperation des Ticks et Stockage dans la Base de Donner
 
@@ -62,4 +32,3 @@ resample data en OHLC et Par TimeFrame
 # Analyse Data
 
 # Save Data & Signal
-

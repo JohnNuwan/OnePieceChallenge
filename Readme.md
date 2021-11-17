@@ -82,10 +82,16 @@ APP:
 
 # Un docker de communication 
 
+#### Dossier Back_End_V01
 Utilisation de FastAPi Pour faire un simple serveur api. La documentation ce trouve au chemin suivant 
 
 		localhost:8091/docs
 
+Plusieur route on été ajouté : 
+* live Tick
+* All Symbole
+* Info Account
+* Info Symbole
 ________________________________________________________________________________________________
 ________________________________________________________________________________________________
 
