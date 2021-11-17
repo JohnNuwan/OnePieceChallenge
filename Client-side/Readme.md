@@ -47,9 +47,9 @@ prochain essai est de coupler les le module pydantic pour interagire avec les da
 	app = FastAPI()
 
 
-@app.post("/items/")
-async def create_item(item: Item):
-    return item
+	@app.post("/items/")
+	async def create_item(item: Item):
+	    return item
 
 
 # Save Data
