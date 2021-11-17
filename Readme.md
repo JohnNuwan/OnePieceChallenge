@@ -80,9 +80,12 @@ APP:
 
 
 
-un docker de communication 
+# Un docker de communication 
 
-Je Pense Passer Par La Lib Flask WebSocket
+Utilisation de FastAPi Pour faire un simple serveur api. La documentation ce trouve au chemin suivant 
+
+		localhost:8091/docs
+
 ________________________________________________________________________________________________
 ________________________________________________________________________________________________
 
