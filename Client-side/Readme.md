@@ -11,7 +11,7 @@ ________________________________________________________________________________
 Description : 
 -------------
 
-partie back en constuction fast api et unicorne
+Connection A Fast Api pour Traitement des Donner
 
 
 Codeur   : K.Azazel   |
@@ -22,3 +22,12 @@ Date     : 16/11/2021 |
 ________________________________________________________________________________________________
 ________________________________________________________________________________________________
 
+# Save Data
+Dans un premier Temps Recuperation des Ticks et Stockage dans la Base de Donner
+
+# Resample Data
+resample data en OHLC et Par TimeFrame
+
+# Analyse Data
+
+# Save Data & Signal
