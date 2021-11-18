@@ -27,10 +27,13 @@ ________________________________________________________________________________
 nous avons deja plusieur route qui mene vers 
 
 * /usr :
+	
 	*	Return un message usr
 
 * /account_info :
+	
 	*	Return un message les information du compte:
+		
 		* login
 		* balance
 		* equity
@@ -39,14 +42,23 @@ nous avons deja plusieur route qui mene vers
 		* server
 
 * /ticker_live/{ticker_id} :
+	
 	* Return les Donner en live du symbole selectionner qui sont de type :
+			
 			* Ask
 			* Bid
 			* Med
 			* Time
 
 * /symbol_info/{item_id}:
+	
 	* Return les informations de recuperation du symbol en cours
 
 * /all_symbol : 
+	
 	* Return Tous les symbole Tradable par le Broker 
+
+
+* /items/{item_id} : 
+	
+	* Simple Route D'eco

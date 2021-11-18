@@ -15,6 +15,17 @@ import MetaTrader5 as mt5
 import pandas as pd
 import uvicorn
 import json
+
+# from sqlalchemy import create_engine
+
+from config import *
+
+
+print(engine)
+print(db_port)
+
+
+# Pour FastAPI
 port = 8091
 host = "0.0.0.0"
 
@@ -49,14 +60,14 @@ async def account_info():
 		# print("account_info() as dataframe:")
 		# print(df.head())
 		data = df#.to_json()
-		db.append({'account_info':data.values})
-		print(db)
+		return data
+		mt5.shutdown()
+
 	else:
 		print("failed to connect to trade account 25115284 with password=gqz0343lbdm, error code =",mt5.last_error())
 	 
 	# shut down connection to the MetaTrader 5 terminal
-	mt5.shutdown()
-	return {'account_info':data.values}
+	return data.values
 
 # Route Recuperation Live Tick
 @app.get("/ticker_live/{ticker_id}")
@@ -83,12 +94,15 @@ async def read_live(ticker_id):
 	# print(data_3.T)
 	# print("-"*120)
 	# sys.exit()
-	data = data_3.T
+	data = data_3
 	db.append(data)
-	return {"ticker_id": [data]}
-
-
-
+	print()
+	print(data)
+	print()
+	print(engine)
+	print(db_port)
+	data_3.to_sql(f'Live_Tick_{ticker_id}',engine, if_exists='append', index=False)
+	return data
 
 # Route Recuperation hist Data
 @app.get("/hist_ticker/{ticker}/{timeframe}")
@@ -100,7 +114,6 @@ async def read_hist(ticker_id,timeframe ):
 async def read_item():
 	data = pd.DataFrame(db)
 	return data
-
 
 @app.get("/symbol_info/{item_id}")
 async def read_item(item_id ):
@@ -119,27 +132,49 @@ async def read_item(item_id ):
 
 	return {"items_id": data}
 
-
-
 @app.get("/all_symbol")
 async def get_all_symbol():
-		
-		# establish connection to the MetaTrader 5 terminal
-		if not mt5.initialize():
-			print("initialize() failed, error code =",mt5.last_error())
-			quit()
-		 
-		# get all symbols
-		symbols=mt5.symbols_get()
-		# print('Symbols: ', len(symbols))
-		# all_symbol = pd.DataFrame()
-		name = []
-		for s in symbols:
-			name.append(s.name)
+	"""    """
+	# establish connection to the MetaTrader 5 terminal
+	if not mt5.initialize():
+		print("initialize() failed, error code =",mt5.last_error())
+		quit()
+	 
+	# get all symbols
+	symbols=mt5.symbols_get()
+	name = []
+	for s in symbols:
+		name.append(s.name)
+	data = pd.DataFrame(name,columns=["Name"])
+	# data.to_sql(pwd,engine, index=False)
+	return data
 
-		data = pd.DataFrame(name,columns=["Name"])
-		# data = data.to_json()
-		return data
+@app.get("/read_tick/{item_id}/{ut_time}")
+async def read_item(item_id,ut_time ):
+	""" Teste Lecture et Analyse Data"""
+	print(item_id,ut_time)
+	df = pd.read_sql(f'Live_Tick_{item_id}', engine).copy()#,index_col=['time']).copy()
+	# df = df.tail(86 500) # 60*24 = 1440 Minute soit 1440*60=86 400s pour etre safe prendre 1peut+
+	# Resample at ut_time
+	df = df.set_index(['time'])
+	df = df.med.resample(f'{ut_time} T').ohlc()
+	df["open"] = pd.to_numeric(df.open, errors='coerce')
+	df["high"] = pd.to_numeric(df.high, errors='coerce')
+	df["low"] = pd.to_numeric(df.low, errors='coerce')
+	df["close"] = pd.to_numeric(df.close, errors='coerce')
+	df['time'] = df.index
+	# Bien pensé a enlever les valeur Null ou les Nan pour envois des donner
+	df.dropna(axis=0, inplace=True)
+	print(df.tail())
+	df.to_sql(f'OHLC_{item_id}_{ut_time}_Min',engine, if_exists='append', index=False)
+	return df
+
+
+@app.get("/ohlc/{item_id}/{ut_time}")
+async def read_item(item_id,ut_time ):
+	df = pd.read_sql(f'OHLC_{item_id}_{ut_time}_Min', engine).copy()
+	print(df)
+	return df
 
 
 @app.get("/items/{item_id}")
@@ -147,4 +182,5 @@ async def read_item(item_id ):
 	return {"items_id": item_id}
 
 if __name__ == '__main__':
+
 	uvicorn.run("main:app",port=port, host=host, debug=True)
