@@ -59,6 +59,10 @@ nous avons deja plusieur route qui mene vers
 	* Return Tous les symbole Tradable par le Broker 
 
 
+* /read_tick/{item_id}/{ut_time} : 
+	
+	* Lis Le format Ticks , Resample en OHLC/TimeFrame et Upload dans la DB
+
 * /items/{item_id} : 
 	
 	* Simple Route D'eco

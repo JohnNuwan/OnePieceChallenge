@@ -57,9 +57,19 @@ Dans un premier Temps Recuperation des Ticks et Stockage dans la Base de Donner
 
 # Resample Data
 
-resample data en OHLC et Par TimeFrame
+resample data en OHLC et Par TimeFrame 
+Nous traiton les donné sur Fastapi et on upload direct dans la DB
+le Fichier utiliser pour le moment est:
+
+	Teste_connect.py
+
 
 # Analyse Data
+resample data en OHLC et Par TimeFrame 
+Nous traiton les donné dans le Script et on upload direct dans la DB
+le Fichier utiliser pour le moment est:
+
+	Teste_Resample_Data.py
 
 # Save Data & Signal
 

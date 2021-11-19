@@ -16,6 +16,7 @@ import pandas as pd
 import uvicorn
 import json
 
+
 # from sqlalchemy import create_engine
 
 from config import *
@@ -28,7 +29,7 @@ print(db_port)
 # Pour FastAPI
 port = 8091
 host = "0.0.0.0"
-
+debug = False
 os.system("cls")
 app = FastAPI()
 
@@ -96,9 +97,11 @@ async def read_live(ticker_id):
 	# sys.exit()
 	data = data_3
 	db.append(data)
-	print()
+
+	print("\n","-"*60)
 	print(data)
-	print()
+	print("\n","-"*60)
+
 	print(engine)
 	print(db_port)
 	data_3.to_sql(f'Live_Tick_{ticker_id}',engine, if_exists='append', index=False)
@@ -165,16 +168,19 @@ async def read_item(item_id,ut_time ):
 	df['time'] = df.index
 	# Bien pensé a enlever les valeur Null ou les Nan pour envois des donner
 	df.dropna(axis=0, inplace=True)
+	print("\n","-"*60)
 	print(df.tail())
+	print("\n","-"*60)
 	df.to_sql(f'OHLC_{item_id}_{ut_time}_Min',engine, if_exists='append', index=False)
 	return df
+
 
 
 @app.get("/ohlc/{item_id}/{ut_time}")
 async def read_item(item_id,ut_time ):
 	df = pd.read_sql(f'OHLC_{item_id}_{ut_time}_Min', engine).copy()
-	print(df)
-	return df
+	data = df.tail(50)
+	return data
 
 
 @app.get("/items/{item_id}")
@@ -183,4 +189,4 @@ async def read_item(item_id ):
 
 if __name__ == '__main__':
 
-	uvicorn.run("main:app",port=port, host=host, debug=True)
+	uvicorn.run("main:app",port=port, host=host, debug=debug)

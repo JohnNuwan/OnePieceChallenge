@@ -92,6 +92,12 @@ Plusieur route on été ajouté :
 * All Symbole
 * Info Account
 * Info Symbole
+* Resample 
+
+Une Partie de Teste Connection a été realisé 
+pour le moment les codes sont pas les plus propre du monde 
+mais il fonctionne c'est deja cela . 
+
 ________________________________________________________________________________________________
 ________________________________________________________________________________________________
 

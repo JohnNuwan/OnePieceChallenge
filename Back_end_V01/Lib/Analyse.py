@@ -17,6 +17,7 @@ import queue as Queue
 import threading
 from Lib.liste_data_trade import *
 from tqdm import tqdm
+
 import asyncio
 
 Overbought = 70
@@ -40,7 +41,7 @@ port = "8091"
 url = f"http://{host}:{port}"
 
 
-def plot_show(df,ut_time,name):
+async def plot_show(df,ut_time,name):
 
 	symbol = name
 	path = "./images/"
@@ -107,7 +108,7 @@ def plot_show(df,ut_time,name):
 	plt.savefig(f"{path}Chart_{symbol}_{ut_time}M.png")
 	return fig
 
-def relative(df):
+async def relative(df):
 		rel = df.pct_change()
 		cumret = (1+ rel).cumprod()-1
 		cumret = cumret.fillna(0)
@@ -115,21 +116,21 @@ def relative(df):
 
 
 # SIgnal AADI
-def signal_buy(df):
+async def signal_buy(df):
 	if ((df.Moving_Price  < OverSold ) and (df.Moving_Signal < OverSold )) and ((df.Moving_Signal > df.Moving_Price)) :
 		return True
 
 	else:
 		return False
 	
-def signal_sell(df):
+async def signal_sell(df):
 	if ((df.Moving_Price > Overbought) and (df.Moving_Signal > Overbought )) and ((df.Moving_Signal < df.Moving_Price)) :
 		return True
 
 	else:
 		return False
 
-def aadi_pct_change(df):
+async def aadi_pct_change(df):
 	if (df.signal_buy == True) and (df.Change < float(0.002)):
 		return 1
 
@@ -139,7 +140,7 @@ def aadi_pct_change(df):
 		return 0
 
 
-def Tradable(df):
+async def Tradable(df):
 	if (df.Signal_SR == -1) and (df.signal_sell == True) and (df.aadi_pct_change == -1) :
 		return -1
 	elif (df.Signal_SR == 1) and (df.signal_buy == True) and (df.aadi_pct_change == 1) :
@@ -147,7 +148,7 @@ def Tradable(df):
 	else:
 		return 0
 
-def message(msg):
+async def message(msg):
 	# if a DISCORD URL is set in the config file, we will post to the discord webhook
 	if DISCORD_WEBHOOK_URL:
 		chat_message = {
@@ -159,7 +160,8 @@ def message(msg):
 		requests.post(DISCORD_WEBHOOK_URL, json=chat_message)
 
 
-def resample(name):
+async def resample(name):
+	"""  Resample les Donner et Construi les differente Analyse  """
 	for i in ut_time:
 		print(f"Get Ticker : {name} For TimeFrame : {i}")
 		r = requests.get(url+f"/read_tick/{name}/{i}")
@@ -189,66 +191,5 @@ def resample(name):
 		df["Change"] = df.close.pct_change()
 		df['aadi_pct_change'] = df.apply(aadi_pct_change, axis=1)
 		df['Tradable'] = df.apply(Tradable,axis=1)
-		df.dropna(axis=0, inplace=True)
-		print(df)
-		# sys.exit()
-		time_now = datetime.now()
-		df.to_sql(f'OHLC_AADI_{j}_{i}_Min',engine, if_exists='append', index=False)
 
-
-		if df.Tradable[-1] == -1:
-			MESSAGE = f"symbol : {name} ,\n Type : Sell\n time = {time_now}\n Price : {df.close[-1]}\n\t FOR TimeFrame : {i} Min"
-			r = requests.post(f'https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={CHAT_ID}&text={MESSAGE}')
-			print(r.status_code)
-			print(df.tail(2))
-			print(MESSAGE)
-			message(MESSAGE)
-			plot_show(df,i,name)
-
-			print(df.tail(5))
-			
-
-		if df.Tradable[-1] == 1:
-			MESSAGE = f"symbol : {name} ,\n Type : Buy\n time = {time_now}\n Price : {df.close[-1]}\n\t FOR TimeFrame : {i} Min"
-			r = requests.post(f'https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={CHAT_ID}&text={MESSAGE}')
-			print(r.status_code)
-			print(MESSAGE)
-			print(df.tail(2))
-			message(MESSAGE)
-
-
-			plot_show(df,i,name)
-		
-			print(df.tail(5))
-
-		time.sleep(int(i)*60)
-		# await asyncio.sleep(int(i)*60)
-
-
-
-r = requests.get(url+f"/all_symbol")
-data = json.loads(r.text)
-# print(list(pd.DataFrame(data)['Name']))
-# sys.exit()
-nameList = [list(pd.DataFrame(data)['Name'])]
-threads = []
-
-
-while True:
-	for i in nameList:
-		for j in i :
-			for k in ALL:
-				if k == j:
-					try:
-						# asyncio.run(main(j))
-						thread = threading.Thread(target=resample, args=(k,))
-						threads.append(thread)
-						thread.start()
-						
-					except Exception as e:
-						print(e)
-						pass
-				else:
-					pass
-	# for thread in threads:  # iterates over the threads
-	# 	thread.join()
+		return df

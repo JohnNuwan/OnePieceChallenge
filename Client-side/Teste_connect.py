@@ -39,8 +39,9 @@ print(type(data))
 
 def make_data(name):
 	r = requests.get(url+f"/ticker_live/{name}")
-	# print(r.status_code)
+	print(r.status_code)
 	data = json.loads(r.text)
+
 	return data	
 
 
@@ -58,10 +59,13 @@ while True:
 		threads = []
 		for i in nameList:
 			for j in i :
-
-				thread = threading.Thread(target=make_data, args=(j,))
-				threads.append(thread)
-				thread.start()
+				try:
+					
+					thread = threading.Thread(target=make_data, args=(j,))
+					threads.append(thread)
+					thread.start()
+				except Exception as e:
+					print(e)
 		for thread in threads:  # iterates over the threads
 			thread.join()       # waits until the thread has finished work
 		
