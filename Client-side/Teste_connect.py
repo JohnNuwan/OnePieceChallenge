@@ -23,25 +23,30 @@ ticker = "XAUUSD"
 db = []
 count = 0  
 
-r = requests.get(url)
-print("-"*30)
-print(r)
+# r = requests.get(url)
+# print("-"*30)
+# print(r)
 
-r = requests.get(url+f"/ticker_live/{ticker}")
-data = json.loads(r.text)
-print(type(data))
+# r = requests.get(url+f"/ticker_live/{ticker}")
+# data = json.loads(r.text)
+# print(type(data))
 
-r = requests.get(url+f"/symbol_info/{ticker}")
-data = json.loads(r.text)
-print(type(data))
+# r = requests.get(url+f"/symbol_info/{ticker}")
+# data = json.loads(r.text)
+# print(type(data))
 
 
 
 def make_data(name):
-	r = requests.get(url+f"/ticker_live/{name}")
-	print(r.status_code)
-	data = json.loads(r.text)
-
+	try:
+		r = requests.get(url+f"/ticker_live/{name}")
+		print(r.status_code)
+		data = json.loads(r.text)
+		time.sleep(0.5)
+		
+	except Exception as e:
+		print(e)
+		pass
 	return data	
 
 

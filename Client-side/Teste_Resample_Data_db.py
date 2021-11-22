@@ -27,13 +27,21 @@ sr_sell = 0.7
 fee = 0.0005
 
 name = "XAUUSD"
-ut_time = ["1","3","5","60","240","1440"]
+ut_time = ["1","3","5","15","30","60","240","1440"]
 
 TOKEN = "1801058128:AAETqJbJMjVUt6ewpjYL2ZVIU8wzIlrzJL4"
 CHAT_ID = "@GOLD_SIGNAL_TESTE"
 
+SQL_APP = False
+CSV_APP = True 
+
+path_csv_ticker = "./Datas/Ticker/"
+
+
 
 os.system('cls')
+
+
 
 host = "88.120.219.170"
 port = "8091"
@@ -160,71 +168,81 @@ def message(msg):
 
 
 def resample(name):
-	for i in ut_time:
-		print(f"Get Ticker : {name} For TimeFrame : {i}")
-		r = requests.get(url+f"/read_tick/{name}/{i}")
-		# print(r)
-		data = json.loads(r.text)
+	try:
+		for i in ut_time:
+			print(f"Get Ticker : {name} For TimeFrame : {i}")
+			r = requests.get(url+f"/read_tick/{name}/{i}")
+			# print(r)
+			# data = json.loads(r.text)
+			print(data)
+			sys.exit()
 
-		# print(name, i)
-		# print(type(data))
-		df = pd.DataFrame.from_dict(data)
-		df['%_change']=relative(df.close)
-		df["Relat_close"] = relative(df.close)
-		df["Relat_high"] = relative(df.high)
-		df["Relat_low"] = relative(df.low)
-		df["Relat_open"] = relative(df.open)
-		df["RSI_13"] = ta.momentum.rsi(close=df["close"], window=13, fillna=False)
-		df["relat_RSI_13"] = ta.momentum.rsi(close=df["Relat_close"], window=13, fillna=False)
-		df["Moving_Signal"]=df.RSI_13.rolling(window=2).mean()
-		df["Moving_Price"]=df.RSI_13.rolling(window=7).mean()
+			# print(name, i)
+			# print(type(data))
+			df = pd.DataFrame.from_dict(data)
+			df['%_change']=relative(df.close)
+			df["Relat_close"] = relative(df.close)
+			df["Relat_high"] = relative(df.high)
+			df["Relat_low"] = relative(df.low)
+			df["Relat_open"] = relative(df.open)
+			df["RSI_13"] = ta.momentum.rsi(close=df["close"], window=13, fillna=False)
+			df["relat_RSI_13"] = ta.momentum.rsi(close=df["Relat_close"], window=13, fillna=False)
+			df["Moving_Signal"]=df.RSI_13.rolling(window=2).mean()
+			df["Moving_Price"]=df.RSI_13.rolling(window=7).mean()
 
-		df["Relat_Moving_Signal"]=df.Relat_close.rolling(window=10).mean()
-		df["Relat_Moving_Price"]=df.Relat_close.rolling(window=100).mean()
-		df["Scale_price"] = np.array(df.close)/10**np.floor(np.log10(df.close))
-		df["S&R"] = df.Scale_price%1
-		df["Signal_SR"] = 1*(df["S&R"] <sr_buy) - 1*(df["S&R"] > sr_sell)
-		df['signal_buy'] = df.apply(signal_buy, axis=1)
-		df['signal_sell'] = df.apply(signal_sell, axis=1)
-		df["Change"] = df.close.pct_change()
-		df['aadi_pct_change'] = df.apply(aadi_pct_change, axis=1)
-		df['Tradable'] = df.apply(Tradable,axis=1)
-		df.dropna(axis=0, inplace=True)
-		print(df)
-		# sys.exit()
-		time_now = datetime.now()
-		df.to_sql(f'OHLC_AADI_{j}_{i}_Min',engine, if_exists='append', index=False)
+			df["Relat_Moving_Signal"]=df.Relat_close.rolling(window=10).mean()
+			df["Relat_Moving_Price"]=df.Relat_close.rolling(window=100).mean()
+			df["Scale_price"] = np.array(df.close)/10**np.floor(np.log10(df.close))
+			df["S&R"] = df.Scale_price%1
+			df["Signal_SR"] = 1*(df["S&R"] <sr_buy) - 1*(df["S&R"] > sr_sell)
+			df['signal_buy'] = df.apply(signal_buy, axis=1)
+			df['signal_sell'] = df.apply(signal_sell, axis=1)
+			df["Change"] = df.close.pct_change()
+			df['aadi_pct_change'] = df.apply(aadi_pct_change, axis=1)
+			df['Tradable'] = df.apply(Tradable,axis=1)
+			df.dropna(axis=0, inplace=True)
+			print(df)
+			# sys.exit()
+			time_now = datetime.now()
+
+			if SQL_APP:
+				df.to_sql(f'OHLC_AADI_{j}_{i}_Min',engine, if_exists='append', index=False)
+			if CSV_APP:
+				df.to_csv(f'{path_csv_ticker}OHLC_AADI_{j}_{i}_Min.csv')
+
+			if df.Tradable[-1] == -1:
+				MESSAGE = f"symbol : {name} ,\n Type : Sell\n time = {time_now}\n Price : {df.close[-1]}\n\t FOR TimeFrame : {i} Min"
+				r = requests.post(f'https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={CHAT_ID}&text={MESSAGE}')
+				print(r.status_code)
+				print(df.tail(2))
+				print(MESSAGE)
+				message(MESSAGE)
+				plot_show(df,i,name)
+
+				print(df.tail(5))
+				
+
+			if df.Tradable[-1] == 1:
+				MESSAGE = f"symbol : {name} ,\n Type : Buy\n time = {time_now}\n Price : {df.close[-1]}\n\t FOR TimeFrame : {i} Min"
+				r = requests.post(f'https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={CHAT_ID}&text={MESSAGE}')
+				print(r.status_code)
+				print(MESSAGE)
+				print(df.tail(2))
+				message(MESSAGE)
 
 
-		if df.Tradable[-1] == -1:
-			MESSAGE = f"symbol : {name} ,\n Type : Sell\n time = {time_now}\n Price : {df.close[-1]}\n\t FOR TimeFrame : {i} Min"
-			r = requests.post(f'https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={CHAT_ID}&text={MESSAGE}')
-			print(r.status_code)
-			print(df.tail(2))
-			print(MESSAGE)
-			message(MESSAGE)
-			plot_show(df,i,name)
-
-			print(df.tail(5))
+				plot_show(df,i,name)
 			
+				print(df.tail(5))
 
-		if df.Tradable[-1] == 1:
-			MESSAGE = f"symbol : {name} ,\n Type : Buy\n time = {time_now}\n Price : {df.close[-1]}\n\t FOR TimeFrame : {i} Min"
-			r = requests.post(f'https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={CHAT_ID}&text={MESSAGE}')
-			print(r.status_code)
-			print(MESSAGE)
-			print(df.tail(2))
-			message(MESSAGE)
+			time.sleep(int(i)*60)
+			# await asyncio.sleep(int(i)*60)
 
 
-			plot_show(df,i,name)
 		
-			print(df.tail(5))
-
-		time.sleep(int(i)*60)
-		# await asyncio.sleep(int(i)*60)
-
-
+	except Exception as e:
+		print(e)
+		pass
 
 r = requests.get(url+f"/all_symbol")
 data = json.loads(r.text)
@@ -250,5 +268,5 @@ while True:
 						pass
 				else:
 					pass
-	# for thread in threads:  # iterates over the threads
-	# 	thread.join()
+		# for thread in threads:  # iterates over the threads
+		# 	thread.join()

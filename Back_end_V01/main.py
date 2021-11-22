@@ -25,11 +25,19 @@ from config import *
 print(engine)
 print(db_port)
 
+# Pour Stocker les donner Soit sous SQL 
+# Soit CSV
+SQL_APP = False
+CSV_APP = True 
+
+path_csv_ticker = "./Datas/Ticker/"
+if not os.path.exists(path_csv_ticker):
+		os.makedirs(path_csv_ticker)
 
 # Pour FastAPI
 port = 8091
 host = "0.0.0.0"
-debug = False
+debug = True
 os.system("cls")
 app = FastAPI()
 
@@ -104,7 +112,12 @@ async def read_live(ticker_id):
 
 	print(engine)
 	print(db_port)
-	data_3.to_sql(f'Live_Tick_{ticker_id}',engine, if_exists='append', index=False)
+	if SQL_APP:
+		data.to_sql(f'Live_Tick_{ticker_id}',engine, if_exists='append', index=False)
+	
+	if CSV_APP:
+		data.to_csv(f"{path_csv_ticker}Live_Tick_{ticker_id}.csv",mode="a")
+	
 	return data
 
 # Route Recuperation hist Data
@@ -149,18 +162,27 @@ async def get_all_symbol():
 	for s in symbols:
 		name.append(s.name)
 	data = pd.DataFrame(name,columns=["Name"])
-	# data.to_sql(pwd,engine, index=False)
+
 	return data
 
 @app.get("/read_tick/{item_id}/{ut_time}")
 async def read_item(item_id,ut_time ):
 	""" Teste Lecture et Analyse Data"""
 	print(item_id,ut_time)
-	df = pd.read_sql(f'Live_Tick_{item_id}', engine).copy()#,index_col=['time']).copy()
+	print(os.getcwd())
+	
+	if SQL_APP:
+		df = pd.read_sql(f'Live_Tick_{item_id}', engine).copy()#,index_col=['time']).copy()
+		print(df.tail(2))
+	if CSV_APP:
+		df = pd.read_csv(f'./Datas/Ticker/Live_Tick_{item_id}.csv').copy()
+		print(df.tail(2))
 	# df = df.tail(86 500) # 60*24 = 1440 Minute soit 1440*60=86 400s pour etre safe prendre 1peut+
 	# Resample at ut_time
+	df["time"] = pd.to_datetime(df.time, errors='coerce')
 	df = df.set_index(['time'])
-	df = df.med.resample(f'{ut_time} T').ohlc()
+	print(df.tail(2))
+	df = df.med.resample(f'{ut_time}T').ohlc()
 	df["open"] = pd.to_numeric(df.open, errors='coerce')
 	df["high"] = pd.to_numeric(df.high, errors='coerce')
 	df["low"] = pd.to_numeric(df.low, errors='coerce')
@@ -171,8 +193,12 @@ async def read_item(item_id,ut_time ):
 	print("\n","-"*60)
 	print(df.tail())
 	print("\n","-"*60)
-	df.to_sql(f'OHLC_{item_id}_{ut_time}_Min',engine, if_exists='append', index=False)
-	return df
+	if SQL_APP:
+		df.to_sql(f'OHLC_{item_id}_{ut_time}_Min',engine, if_exists='append', index=False)
+	
+	if CSV_APP:
+		df.to_csv(f"{path_csv_ticker}OHLC_{item_id}_{ut_time}_Min.csv",mode="a")
+	return df.tail(5)
 
 
 
