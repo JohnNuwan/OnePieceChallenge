@@ -11,6 +11,8 @@ from tqdm import tqdm
 import queue as Queue
 import threading
 
+from Lib.liste_data_trade import Forex
+
 os.system('cls')
 
 host = "88.120.219.170"
@@ -50,7 +52,7 @@ def make_data(name):
 	return data	
 
 
-threadList = ["Thread-1", "Thread-2", "Thread-3"]
+
 
 r = requests.get(url+f"/all_symbol")
 data = json.loads(r.text)
@@ -64,18 +66,21 @@ while True:
 		threads = []
 		for i in nameList:
 			for j in i :
-				try:
-					
-					thread = threading.Thread(target=make_data, args=(j,))
-					threads.append(thread)
-					thread.start()
-				except Exception as e:
-					print(e)
+				for k in Forex:
+					if j == k:
+						try:
+							
+							thread = threading.Thread(target=make_data, args=(j,))
+							threads.append(thread)
+							thread.start()
+						except Exception as e:
+							print(e)
 		for thread in threads:  # iterates over the threads
 			thread.join()       # waits until the thread has finished work
 		
 	except Exception as e:
 		print(e)
+		pass
 
 	# count+=1
 # while count <10:

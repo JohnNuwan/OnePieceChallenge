@@ -27,8 +27,8 @@ print(db_port)
 
 # Pour Stocker les donner Soit sous SQL 
 # Soit CSV
-SQL_APP = False
-CSV_APP = True 
+SQL_APP = True
+CSV_APP = False#True 
 
 path_csv_ticker = "./Datas/Ticker/"
 if not os.path.exists(path_csv_ticker):
@@ -36,8 +36,8 @@ if not os.path.exists(path_csv_ticker):
 
 # Pour FastAPI
 port = 8091
-host = "0.0.0.0"
-debug = True
+host = "localhost"
+debug = False
 os.system("cls")
 app = FastAPI()
 
